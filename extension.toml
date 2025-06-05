@@ -1,0 +1,10 @@
+id = "mcp-server-resend"
+name = "Resend MCP Server"
+description = "A Zed extension for the Resend MCP Server."
+version = "0.0.1"
+schema_version = 1
+authors = ["Danilo Leal <daniloleal09@gmail.com>"]
+repository = "https://github.com/danilo-leal/zed-resend-mcp-server"
+
+[context_servers.mcp-server-resend]
+name = "Resend MCP Server"

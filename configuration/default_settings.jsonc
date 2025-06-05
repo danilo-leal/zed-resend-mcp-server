@@ -1,0 +1,9 @@
+{
+  "resend_api_key": "re_your_api_key_here",
+  // Sender email address (optional)
+  // Must be from a verified domain in your Resend account
+  // If not provided, you'll be prompted when sending emails
+  "sender_email_address": "your-email@yourdomain.com",
+  // Optional: Comma-separated list of reply-to email addresses
+  "reply_to_email_addresses": "replies@yourdomain.com",
+}
