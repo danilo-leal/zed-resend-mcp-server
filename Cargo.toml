@@ -1,5 +1,5 @@
 [package]
-name = "zed-resend-mcp-server"
+name = "resend_mcp_server"
 version = "0.0.1"
 edition = "2021"
 

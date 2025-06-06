@@ -430,6 +430,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "resend_mcp_server"
+version = "0.0.1"
+dependencies = [
+ "schemars",
+ "serde",
+ "zed_extension_api",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -777,15 +786,6 @@ dependencies = [
  "quote",
  "syn",
  "synstructure",
-]
-
-[[package]]
-name = "zed-resend-mcp-server"
-version = "0.0.1"
-dependencies = [
- "schemars",
- "serde",
- "zed_extension_api",
 ]
 
 [[package]]
