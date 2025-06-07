@@ -1,13 +1,13 @@
 use schemars::JsonSchema;
 use serde::Deserialize;
 use std::env;
+use std::fs;
 use zed_extension_api::{
     self as zed, serde_json, settings::ContextServerSettings, Command, ContextServerConfiguration,
     ContextServerId, Project, Result,
 };
 
-const PACKAGE_NAME: &str = "mcp-server-resend";
-const SERVER_PATH: &str = "node_modules/mcp-server-resend/dist/index.js";
+const SERVER_PATH: &str = "mcp-resend-server/index.js";
 
 #[derive(Debug, Deserialize, JsonSchema)]
 struct ResendContextServerSettings {
@@ -30,11 +30,28 @@ impl zed::Extension for ResendModelContextExtension {
         _context_server_id: &ContextServerId,
         project: &Project,
     ) -> Result<Command> {
-        let latest_version = zed::npm_package_latest_version(PACKAGE_NAME)?;
-        let version = zed::npm_package_installed_version(PACKAGE_NAME)?;
+        let server_dir = env::current_dir().unwrap().join("mcp-resend-server");
+        let server_file = server_dir.join("index.js");
 
-        if version.as_deref() != Some(latest_version.as_ref()) {
-            zed::npm_install_package(PACKAGE_NAME, &latest_version)?;
+        if !server_file.exists() {
+            fs::create_dir_all(&server_dir).map_err(|e| e.to_string())?;
+            let server_script = include_str!("../assets/mcp-server.js");
+            fs::write(&server_file, server_script).map_err(|e| e.to_string())?;
+
+            // Create package.json
+            let package_json = r#"{
+  "name": "mcp-resend-server",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "resend": "^4.0.0"
+  }
+}"#;
+            fs::write(server_dir.join("package.json"), package_json).map_err(|e| e.to_string())?;
+
+            zed::npm_install_package("@modelcontextprotocol/sdk", "^1.0.0")?;
+            zed::npm_install_package("resend", "^4.0.0")?;
         }
 
         let settings = ContextServerSettings::for_project("mcp-server-resend", project)?;
@@ -44,23 +61,25 @@ impl zed::Extension for ResendModelContextExtension {
         let settings: ResendContextServerSettings =
             serde_json::from_value(settings).map_err(|e| e.to_string())?;
 
-        let mut env = vec![("RESEND_API_KEY".into(), settings.resend_api_key)];
+        let mut env = vec![("RESEND_API_KEY".to_string(), settings.resend_api_key)];
 
         if let Some(sender) = settings.sender_email_address {
-            env.push(("SENDER_EMAIL_ADDRESS".into(), sender));
+            env.push(("RESEND_DEFAULT_FROM".to_string(), sender));
         }
 
         if let Some(reply_to) = settings.reply_to_email_addresses {
-            env.push(("REPLY_TO_EMAIL_ADDRESSES".into(), reply_to));
+            env.push(("RESEND_DEFAULT_REPLY_TO".to_string(), reply_to));
         }
+
+        let args = vec![env::current_dir()
+            .unwrap()
+            .join(SERVER_PATH)
+            .to_string_lossy()
+            .to_string()];
 
         Ok(Command {
             command: zed::node_binary_path()?,
-            args: vec![env::current_dir()
-                .unwrap()
-                .join(SERVER_PATH)
-                .to_string_lossy()
-                .to_string()],
+            args,
             env,
         })
     }

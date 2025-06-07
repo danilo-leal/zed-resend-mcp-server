@@ -1,6 +1,23 @@
 # Resend MCP Server Extension for Zed
 
-This extension integrates the Resend MCP server as an extension for [Zed](https://zed.dev).
+This extension provides a MCP server for sending emails via [Resend](https://resend.com) directly from [Zed](https://zed.dev).
+
+## Features
+
+| Feature | Status |
+|---------|--------|
+| **Send plain text emails** | **Supported** |
+| **Send HTML emails** | **Supported** |
+| **Multiple recipients** | **Supported** |
+| **CC and BCC** | **Supported** |
+| **Reply-to addresses** | **Supported** |
+| **Scheduled sending** | **Supported** |
+| **Custom sender email** | **Supported** |
+| **Environment-based configuration** | **Supported** |
+| **React Email templates** | Not Supported |
+| **Attachments** | Not Supported |
+| **Batch sending** | Not Supported |
+| **Email tracking** | Not Supported |
 
 ## Configuration
 
@@ -19,8 +36,6 @@ Add your Resend API key to your Zed settings (`~/.config/zed/settings.json`):
   }
 }
 ```
-
-With this minimal setup, you'll be prompted to provide a sender email address each time you send an email.
 
 ### Recommended Configuration (With Sender Email)
 
@@ -57,6 +72,8 @@ You can also configure reply-to addresses:
 }
 ```
 
-## Getting Help
-- [Resend MCP Documentation](https://resend.com/docs/knowledge-base/mcp-server)
-- [Zed MCP documentation](https://zed.dev/docs/ai/mcp)
+## Further Information
+
+- [Resend MCP Docs](https://resend.com/docs/knowledge-base/mcp-server)
+- [Resend MCP Server](https://github.com/resend/mcp-send-email)
+- [Zed MCP Docs](https://zed.dev/docs/assistant/model-context-protocol)
