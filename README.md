@@ -2,23 +2,6 @@
 
 This extension provides a MCP server for sending emails via [Resend](https://resend.com) directly from [Zed](https://zed.dev).
 
-## Features
-
-| Feature | Status |
-|---------|--------|
-| **Send plain text emails** | **Supported** |
-| **Send HTML emails** | **Supported** |
-| **Multiple recipients** | **Supported** |
-| **CC and BCC** | **Supported** |
-| **Reply-to addresses** | **Supported** |
-| **Scheduled sending** | **Supported** |
-| **Custom sender email** | **Supported** |
-| **Environment-based configuration** | **Supported** |
-| **React Email templates** | Not Supported |
-| **Attachments** | Not Supported |
-| **Batch sending** | Not Supported |
-| **Email tracking** | Not Supported |
-
 ## Configuration
 
 ### Minimal Configuration (API Key Only)
@@ -71,6 +54,23 @@ You can also configure reply-to addresses:
   }
 }
 ```
+
+## Features
+
+| Feature | Status |
+|---------|--------|
+| Send plain text emails | **Supported** |
+| Send HTML emails | **Supported** |
+| Multiple recipients | **Supported** |
+| CC and BCC | **Supported** |
+| Reply-to addresses | **Supported** |
+| Scheduled sending | **Supported** |
+| Custom sender email | **Supported** |
+| Environment-based configuration | **Supported** |
+| React Email templates | Not Supported |
+| Attachments | Not Supported |
+| Batch sending | Not Supported |
+| Email tracking | Not Supported |
 
 ## Further Information
 
