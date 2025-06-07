@@ -1,6 +1,6 @@
 # Resend MCP Server Extension for Zed
 
-This extension integrates the [resend-mcp](https://www.npmjs.com/package/resend-mcp) npm package as a MCP server extension for [Zed](https://zed.dev).
+This extension integrates the Resend MCP server as an extension for [Zed](https://zed.dev).
 
 ## Configuration
 
