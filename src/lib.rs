@@ -6,8 +6,8 @@ use zed_extension_api::{
     ContextServerId, Project, Result,
 };
 
-const PACKAGE_NAME: &str = "resend-mcp";
-const SERVER_PATH: &str = "node_modules/resend-mcp/dist/index.js";
+const PACKAGE_NAME: &str = "mcp-server-resend";
+const SERVER_PATH: &str = "node_modules/mcp-server-resend/dist/index.js";
 
 #[derive(Debug, Deserialize, JsonSchema)]
 struct ResendContextServerSettings {
