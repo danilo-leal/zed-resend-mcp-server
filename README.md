@@ -6,7 +6,7 @@ This extension provides a MCP server for sending emails via [Resend](https://res
 
 ### Minimal Configuration (API Key Only)
 
-Add your Resend API key to your Zed settings (`~/.config/zed/settings.json`):
+Add your Resend API key to your Zed `settings.json`:
 
 ```json
 {
