@@ -1,13 +1,10 @@
 use schemars::JsonSchema;
 use serde::Deserialize;
-use std::env;
 use std::fs;
 use zed_extension_api::{
     self as zed, serde_json, settings::ContextServerSettings, Command, ContextServerConfiguration,
     ContextServerId, Project, Result,
 };
-
-const SERVER_PATH: &str = "mcp-resend-server/index.js";
 
 #[derive(Debug, Deserialize, JsonSchema)]
 struct ResendContextServerSettings {
@@ -30,52 +27,57 @@ impl zed::Extension for ResendModelContextExtension {
         _context_server_id: &ContextServerId,
         project: &Project,
     ) -> Result<Command> {
-        let server_dir = env::current_dir().unwrap().join("mcp-resend-server");
-        let server_file = server_dir.join("index.js");
-
-        if !server_file.exists() {
-            fs::create_dir_all(&server_dir).map_err(|e| e.to_string())?;
-            let server_script = include_str!("../assets/mcp-server.js");
-            fs::write(&server_file, server_script).map_err(|e| e.to_string())?;
-
-            // Create package.json
-            let package_json = r#"{
-  "name": "mcp-resend-server",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "resend": "^4.0.0"
-  }
-}"#;
-            fs::write(server_dir.join("package.json"), package_json).map_err(|e| e.to_string())?;
-
-            zed::npm_install_package("@modelcontextprotocol/sdk", "^1.0.0")?;
-            zed::npm_install_package("resend", "^4.0.0")?;
-        }
-
         let settings = ContextServerSettings::for_project("mcp-server-resend", project)?;
         let Some(settings) = settings.settings else {
             return Err("missing `resend_api_key` setting".into());
         };
+
         let settings: ResendContextServerSettings =
             serde_json::from_value(settings).map_err(|e| e.to_string())?;
 
+        // Check if resend-mcp is installed, if not install it
+        let node_modules_dir = std::env::current_dir().unwrap().join("node_modules");
+        let resend_mcp_dir = node_modules_dir.join("resend-mcp");
+        let package_binary = resend_mcp_dir.join("dist").join("index.js");
+
+        if !package_binary.exists() {
+            // Create package.json if it doesn't exist
+            let package_json_path = std::env::current_dir().unwrap().join("package.json");
+            if !package_json_path.exists() {
+                let package_json = r#"{
+  "name": "mcp-resend-server-wrapper",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "resend-mcp": "^0.1.2"
+  }
+}"#;
+                fs::write(&package_json_path, package_json).map_err(|e| e.to_string())?;
+            }
+
+            zed::npm_install_package("resend-mcp", "^0.1.2")?;
+
+            // Verify that the binary exists after installation
+            if !package_binary.exists() {
+                return Err(format!(
+                    "Failed to install resend-mcp package or binary not found at {}",
+                    package_binary.display()
+                ));
+            }
+        }
+
+        // Prepare environment variables for the resend-mcp server
         let mut env = vec![("RESEND_API_KEY".to_string(), settings.resend_api_key)];
 
         if let Some(sender) = settings.sender_email_address {
-            env.push(("RESEND_DEFAULT_FROM".to_string(), sender));
+            env.push(("SENDER_EMAIL_ADDRESS".to_string(), sender));
         }
 
         if let Some(reply_to) = settings.reply_to_email_addresses {
-            env.push(("RESEND_DEFAULT_REPLY_TO".to_string(), reply_to));
+            env.push(("REPLY_TO_EMAIL_ADDRESSES".to_string(), reply_to));
         }
 
-        let args = vec![env::current_dir()
-            .unwrap()
-            .join(SERVER_PATH)
-            .to_string_lossy()
-            .to_string()];
+        let args = vec![package_binary.to_string_lossy().to_string()];
 
         Ok(Command {
             command: zed::node_binary_path()?,
