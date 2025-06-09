@@ -23,7 +23,8 @@ Add your Resend API key to your Zed `settings.json`:
 
 ### Recommended Configuration (With Sender Email)
 
-For a nicer experience, also configure your default sender email:
+Ensure your sender email is from a verified domain.
+You can do that by going to [Resend's dashboard Domain page](https://resend.com/domains).
 
 ```json
 {
