@@ -6,6 +6,15 @@ use zed_extension_api::{
     ContextServerId, Project, Result,
 };
 
+const PACKAGE_JSON_CONTENT: &str = r#"{
+  "name": "mcp-resend-server-wrapper",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "resend-mcp": "^0.1.2"
+  }
+}"#;
+
 #[derive(Debug, Deserialize, JsonSchema)]
 struct ResendContextServerSettings {
     resend_api_key: String,
@@ -35,29 +44,18 @@ impl zed::Extension for ResendModelContextExtension {
         let settings: ResendContextServerSettings =
             serde_json::from_value(settings).map_err(|e| e.to_string())?;
 
-        // Check if resend-mcp is installed, if not install it
         let node_modules_dir = std::env::current_dir().unwrap().join("node_modules");
         let resend_mcp_dir = node_modules_dir.join("resend-mcp");
         let package_binary = resend_mcp_dir.join("dist").join("index.js");
 
         if !package_binary.exists() {
-            // Create package.json if it doesn't exist
             let package_json_path = std::env::current_dir().unwrap().join("package.json");
             if !package_json_path.exists() {
-                let package_json = r#"{
-  "name": "mcp-resend-server-wrapper",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "resend-mcp": "^0.1.2"
-  }
-}"#;
-                fs::write(&package_json_path, package_json).map_err(|e| e.to_string())?;
+                fs::write(&package_json_path, PACKAGE_JSON_CONTENT).map_err(|e| e.to_string())?;
             }
 
             zed::npm_install_package("resend-mcp", "^0.1.2")?;
 
-            // Verify that the binary exists after installation
             if !package_binary.exists() {
                 return Err(format!(
                     "Failed to install resend-mcp package or binary not found at {}",
@@ -66,7 +64,6 @@ impl zed::Extension for ResendModelContextExtension {
             }
         }
 
-        // Prepare environment variables for the resend-mcp server
         let mut env = vec![("RESEND_API_KEY".to_string(), settings.resend_api_key)];
 
         if let Some(sender) = settings.sender_email_address {
