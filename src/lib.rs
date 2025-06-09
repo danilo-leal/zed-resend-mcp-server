@@ -70,11 +70,15 @@ impl zed::Extension for ResendModelContextExtension {
         let mut env = vec![("RESEND_API_KEY".to_string(), settings.resend_api_key)];
 
         if let Some(sender) = settings.sender_email_address {
-            env.push(("SENDER_EMAIL_ADDRESS".to_string(), sender));
+            if !sender.is_empty() {
+                env.push(("SENDER_EMAIL_ADDRESS".to_string(), sender));
+            }
         }
 
         if let Some(reply_to) = settings.reply_to_email_addresses {
-            env.push(("REPLY_TO_EMAIL_ADDRESSES".to_string(), reply_to));
+            if !reply_to.is_empty() {
+                env.push(("REPLY_TO_EMAIL_ADDRESSES".to_string(), reply_to));
+            }
         }
 
         let args = vec![package_binary.to_string_lossy().to_string()];
